@@ -1,0 +1,23 @@
+####################
+# LAYERCAKE CONFIG #
+####################
+# Comments denoted with a "#"
+# This file contains default information for this particular version of LayerCake -
+# To package standalone versions change any of the values in this field.
+# Fields are tab delimited.
+###########################
+# MANDATORY PARAMETERS  #
+###########################
+# If this option is set to "Yes," then every time LayerCake is launched, the user will be asked to select a data bundle to load. Otherwise, or if the user cancels the prompt, the default bundle is loaded.
+PROMPT-LOAD-BUNDLE	No
+# If no bundle is selected, where should we look for our data?
+DEFAULT-BUNDLE	./data/TestBundle
+########################
+# OPTIONAL PARAMETERS #
+########################
+
+# A "-1' indicates to use the internal default value for a given optional parameter - alternatively you can just delete the line.
+# How many base pairs are averaged together into one glyph? If the value supplied is too big (so there's not enough space to examine a bin on the screen) or too small (so there are too many glyphs to show on the screen at once), this value will be overwritten.
+BINSIZE
+VARIANT-THRESHOLD
+EVENT-THRESHOLD
