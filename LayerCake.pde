@@ -122,7 +122,7 @@ color  bottom = color(200);
 color maxcolor = color(194, 0, 0);  // .95 1 .76
 
 color[] coloroptions = new color[] {
-  bottom, color(128), color(255, 127, 0), color(0, 0, 255, 128)
+  bottom, color(27,158,119), color(217,95,2), color(117,112,179), color(231,41,138), color(102,166,30), color(230,171,2), color(166,118,29), color(102,102,102)
 };
 
 //--------Wedge vars----------------

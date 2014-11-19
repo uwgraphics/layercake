@@ -239,7 +239,15 @@ String[] toMetaNames(){
   
   for(int i = 0;i<metadata.length;i++){
     if(numFound(seqNames,seqNames[i])>1){
-      metadata[i] = fileNames[i];
+      if(fileNames[i].lastIndexOf("/")!=-1){
+        metadata[i] = fileNames[i].substring(fileNames[i].lastIndexOf("/")+1);
+      }
+      else if(fileNames[i].lastIndexOf("\\")!=-1){
+        metadata[i] = fileNames[i].substring(fileNames[i].lastIndexOf("\\")+1);
+      }
+      else{
+        metadata[i] = fileNames[i];
+      }
     }
     else{
       metadata[i] = seqNames[i];
