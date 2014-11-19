@@ -72,8 +72,6 @@ void readSAMLine(String[] tokens) {
 int checkRowsSAM(String filename,int curdex) {
   System.out.println("Checking "+filename+" for individual sequences");
   BufferedReader reader = createReader(filename);
-  PrintWriter file = createWriter(dataPath("M28reads.csv"));
-  file.println("RT,Read");
   String aline = "";
   String[] tokens;
   int index = curdex;
@@ -84,10 +82,9 @@ int checkRowsSAM(String filename,int curdex) {
         tokens = splitTokens(aline, "\t");
 
         if (tokens!=null && tokens.length>0 && !isHeaderLine(tokens[0])) {
-          file.println(tokens[3]+","+tokens[9]);
-          if (!names.containsKey(tokens[2])) {
+          if (!names.containsKey(filename+"_"+tokens[2])) {
             System.out.println("Found sequence "+tokens[2]);
-            names.put(tokens[2],index);
+            names.put(filename+"_"+tokens[2],index);
             index++;
           }
           if (int(tokens[3])<minrt) {
@@ -104,15 +101,16 @@ int checkRowsSAM(String filename,int curdex) {
       e.printStackTrace();
     }//end catch
   }//end while
-  file.flush();
-  file.close();
   System.out.println("Finished checking "+filename+", found "+(index-curdex)+" sequences");
   return index;
 }//end checkRowsSAM
 
 
 void parseSAMFolder(File folder) {
-  if(folder!=null){
+  if(folder==null){
+    exit();
+  }
+  else{
   ArrayList<String> samFiles = new ArrayList<String>(); 
   String ext;
   rows = 0;
@@ -126,13 +124,24 @@ void parseSAMFolder(File folder) {
       
     }
     
-    text("Found "+samFiles.size()+" SAM files...",5,10);
-    
+    float dx = 350.0/samFiles.size();
+    text("Found "+samFiles.size()+" SAM files:",5,10);
+    text("Pre-Processing:",5,20);
+    fill(255);
+    stroke(0);
+    rect(25,40,350,20);
+    float x = 25;
+        
     for(String aFile:samFiles){
       rows = checkRowsSAM(aFile,rows);
+      noStroke();
+      fill(0,0,255);
+      rect(x,40,dx,20);
+      x+=dx;
+      
     }
     
-    
+
     int cols = maxrt-minrt;
     System.out.println("Making "+cols+" bins");
     variants = new float[rows][cols][4];
@@ -153,8 +162,20 @@ void parseSAMFolder(File folder) {
     }
     
     System.out.println("Loading data");
+    fill(0);
+    text("Loading:",5,30);
+    
+    fill(255);
+    stroke(0);
+    rect(25,65,350,20);
+    
+    int numDone = 0;
     for(String aFile:samFiles){
       loadOneSAM(aFile);
+      noStroke();
+      fill(0,0,255);
+      rect(25+(dx*numDone),65,dx,20);
+      numDone++;
     }
     
     
@@ -180,7 +201,8 @@ void parseSAMFolder(File folder) {
         refgen[i+1][j] = curref; 
       }
     }
-    
+    fill(0);
+    text("Writing...",5,95);
     System.out.println("Writing out file");
     int numBins = 0;
     for(int i = 0;i<coverage.length;i++){
@@ -198,13 +220,48 @@ void parseSAMFolder(File folder) {
   }
 }
 
-void makeCSV(File folder) {
+
+String[] toMetaNames(){
   Object[] temp = names.keySet().toArray();
+  String fullName;
+  String[] fileNames = new String[temp.length];
+  String[] seqNames = new String[temp.length];
   String[] metadata = new String[temp.length];
+
+  int delimiter;
   for(int i = 0;i<metadata.length;i++){
     int index = ((Integer)(names.get(temp[i]))).intValue();
-    metadata[index] = (String)temp[i];
+    fullName = (String)temp[i];
+    delimiter = fullName.indexOf(".sam_");
+    fileNames[index] = fullName.substring(0,delimiter);
+    seqNames[index] = fullName.substring(delimiter+5);
   }
+  
+  for(int i = 0;i<metadata.length;i++){
+    if(numFound(seqNames,seqNames[i])>1){
+      metadata[i] = fileNames[i];
+    }
+    else{
+      metadata[i] = seqNames[i];
+    }
+  }
+  return metadata;
+  
+}
+
+int numFound(String[] source ,String target){
+  int found = 0;
+  for(String aString:source){
+    if(aString.equals(target)){
+      found++;
+    }
+  }
+  return found;
+}
+
+
+void makeCSV(File folder) {
+  String[] metadata = toMetaNames();
   
   System.out.println("Making file with "+metadata.length+" sequences, maximum of "+variants[0].length+" bps per sequence");
   PrintWriter file = createWriter(folder.getAbsolutePath()+"/LayerCakeInput.csv");
@@ -265,7 +322,7 @@ boolean loadOneSAM(String filename) {
       if (aline!=null) {
         tokens = splitTokens(aline, "\t");
         if (tokens!=null && tokens.length>0 && !isHeaderLine(tokens[0])) {
-          index = ((Integer)(names.get(tokens[2]))).intValue();
+          index = ((Integer)(names.get(filename+"_"+tokens[2]))).intValue();
           c = int(tokens[3])-minrt;
           extent = tokens[9].length();
           if (c+extent >= 0) {
@@ -364,7 +421,7 @@ void prepMatrix(String filename){
       if (aline!=null) {
         tokens = splitTokens(aline, "\t");
         if (tokens!=null && tokens.length>0 && !isHeaderLine(tokens[0])) {
-          index = ((Integer)(names.get(tokens[2]))).intValue();
+          index = ((Integer)(names.get(filename+"_"+tokens[2]))).intValue();
           c = int(tokens[3])-minrt;
           extent = tokens[9].length();
           if (c+extent >= 0) {
