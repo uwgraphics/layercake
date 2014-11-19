@@ -2,6 +2,10 @@ LayerCake
 =========
 Visualization of variation in viral sequence data
 
+This tool was created by the Visual Computing Lab at the University of Wisconsin-Madison, to assist with projects in the Dave O'Connor lab at the UW Department of Pathology and Laboratory Medicine. 
+http://graphics.cs.wisc.edu
+http://labs.pathology.wisc.edu/oconnor/
+
 For more information about the project, consult http://graphics.cs.wisc.edu/WP/layercake/
 
 To build this project you will need Processing 2.0 or above, 
