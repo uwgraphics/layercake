@@ -352,7 +352,7 @@ void draw() {
           col =  floor( (mouseX-xtrans-dataX-zoomS-zoomW)/ (bw+cgap)) + (zoomBin+1);
         }
         if ((mouseX-xtrans-dataX)>zoomS && (mouseX-xtrans-dataX)<zoomS+zoomW) {
-          rawcol = (zoomBin*binBasePairs) +  floor( (mouseX-xtrans-dataX-zoomS)/ (bpw+cgap)) + (minrt-minminrt);
+          rawcol = (zoomBin*binBasePairs) +  floor( (mouseX-xtrans-dataX-zoomS)/ (bpw+cgap));
         }
       }
     }//end if
@@ -468,10 +468,10 @@ void drawEven(boolean drawStripes) {
             int minoffset = minrt-minminrt;
             int maxoffset = maxmaxrt-maxrt;
             for (int k = 0;k<binBasePairs;k++) {
-              if ((j*binBasePairs + k + minoffset) < vraw[i].length - maxoffset && (getV(i, j*binBasePairs + k +minoffset)>=eweight)) {
+              if ((j*binBasePairs + k + minoffset) < vraw[i].length - maxoffset && (getV(i, j*binBasePairs + k -minoffset)>=eweight)) {
                 if (j!=zoomBin) {
-                  // fill(lerpColor(bottom,eventcolor,cer-sConf.getValuef()));
-                  fill(getColor(1.0, getP(i,j*binBasePairs + k +minoffset), 1.0));
+                  fill(lerpColor(bottom,eventcolor, 1-(float)(getP(i,j*binBasePairs + k +minoffset))));
+                  //fill(getColor(1.0, getP(i,j*binBasePairs + k +minoffset), 1.0));
                   rect(curex, cury+dataY, max(2, (dw)), ratio*h);
                 }//end if
                 events[j]++;
@@ -507,7 +507,7 @@ void drawEven(boolean drawStripes) {
     strokeWeight(2);
     fill(0, 0);
     if (rawcol>=0) {
-      rect(zoomS + ((rawcol-(minrt-minminrt) - (zoomBin*binBasePairs))*(bpw+cgap)), dataY, bpw+cgap, visibleCount*(bh+rgap)-rgap);
+      rect(zoomS + ((rawcol - (zoomBin*binBasePairs))*(bpw+cgap)), dataY, bpw+cgap, visibleCount*(bh+rgap)-rgap);
     }
     else if (col>=0 && col<zoomBin) {
       rect(col*(bw+cgap), dataY, bw+cgap, visibleCount*(bh+rgap)-rgap);
@@ -882,12 +882,12 @@ void drawTooltip() {
   if (row>=0 && row<rows && ( (col>=0 && col<cols && vdisp[row][col]>=0) || (rawcol>=0 && rawcol<=(maxrt-minrt) && getV(row, rawcol)>=0) ) ) {
     String label;
     float curvar = 0;
-
+     
     if (vdisp[0].length==vraw[0].length) {
       curvar = vdisp[row][col];
       label = "ref_nt: "+(col+minrt)+" cov: "+covdisp[row][col]+"  var:"+toPercentFloat(curvar)+"% p:"+pdisp[row][col] ;//+" actg_ct,n_ct,dip_ct: "+ldisp[row][col][0]+","+ldisp[row][col][1]+","+ldisp[row][col][2];
     }//end if
-    else if (rawcol>=0 && rawcol<=(maxrt-minrt)) {
+    else if (rawcol>=0 && rawcol<=(maxrt-minminrt)) {
       curvar = getV(row, rawcol);
       label = "ref_nt: "+(rawcol+minrt)+" cov: "+covraw[row][rawcol]+"  var:"+toPercentFloat(curvar)+"% p:"+getP(row, rawcol);//+" actg_ct,n_ct,dip_ct: "+lraw[row][rawcol][0]+","+lraw[row][rawcol][1]+","+lraw[row][rawcol][2];
     }
@@ -1078,11 +1078,18 @@ void mousePressed() {
   if (mouseButton==RIGHT && oldx>=dataX && oldy<winHeight - 160 && oldy>dataY && oldx<=dataX+dataWidth+bw) {
     if (zoomBin==-1 || rawcol==-1) {
       zoomBin = col;
+     // wedge.right*= maxvariant;
+     // vweight = wedge.right;
       shouldRedraw = true;
     }
     else if (rawcol>=-1) {
       zoomBin = -1;
       bw = oldbw;
+     // wedge.right/= maxvariant;
+     // if(wedge.right>maxvariant){
+     //   wedge.right = maxvariant;
+    //  }
+    //  vweight = wedge.right;
     }
   }
   if (oldy<(winHeight - 160) && oldy>dataY && oldx<dataX) { // && oldx<dataX+ dataWidth){
@@ -1135,7 +1142,7 @@ void mouseMoved() {
       }
       if ((mouseX-xtrans-dataX)>zoomS && (mouseX-xtrans-dataX)<zoomS+zoomW) {
         oldCol = rawcol;
-        rawcol = (zoomBin*binBasePairs) +  floor( (mouseX-xtrans-dataX-zoomS)/ (bpw+cgap)) + (minrt-minminrt);
+        rawcol = (zoomBin*binBasePairs) +  floor( (mouseX-xtrans-dataX-zoomS)/ (bpw+cgap));// - minrt;
       }
     }
   }//end if
@@ -1394,6 +1401,7 @@ void loadFasta(String filename) {
       //  System.err.println(seqname);
       curRow = search(metadata, seqname);
       if (curRow==-1) {
+        
         //  System.err.println("Can't find "+seqname);
       }
       index = 0;
@@ -2525,11 +2533,11 @@ void drawSideGraph() {
   float cury = dataY;
   float dx = 0;
   int offset = 0;
-  int minoffset = minrt-minminrt;
+  int minoffset = minminrt-minrt;
   int maxoffset = maxmaxrt-maxrt;
   noStroke();
 
-  if (rawcol>=minoffset && rawcol<vraw[0].length-maxoffset) {
+  if (rawcol>=0 && rawcol<vraw[0].length) {
     int i;
     for (int l = 0;l<rows;l++) {
       i = reorder[l];
@@ -2540,26 +2548,26 @@ void drawSideGraph() {
       curx = startx+1;
       float scaleFactor = 0;
       if (coverageCheck.isSelected()) {
-        scaleFactor = map(covraw[i][rawcol], 0, maxcovraw, 0, sideGraphWidth-11);
+        scaleFactor = map(covraw[i][rawcol-minoffset], 0, maxcovraw, 0, sideGraphWidth-11);
       }
       else {
         scaleFactor = sideGraphWidth-11;
       }
 
       if(covraw[i][rawcol]>0){
-        for (int j = 0;j<vraw[i][rawcol].length;j++) {
-          if (refgen[i+1][rawcol]!=atcgOrder[j]) {
-            dx = vraw[i][rawcol][j]*scaleFactor;
+        for (int j = 0;j<vraw[i][rawcol-minoffset].length;j++) {
+          if (refgen[i+1][rawcol-minoffset]!=atcgOrder[j]) {
+            dx = vraw[i][rawcol-minoffset][j]*scaleFactor;
           }
           else {
-            dx = (1-sum(vraw[i][rawcol])+vraw[i][rawcol][j])*scaleFactor;
+            dx = (1-sum(vraw[i][rawcol-minoffset])+vraw[i][rawcol-minoffset][j])*scaleFactor;
           }
   
           fill(actgcolor[j]);
           rect(curx, floor(cury), dx, ceil(bh));
           if (dx>0) {
             fill(0);
-            text(atcgOrder[j]+"", floor((dx/2.0)+curx+textWidth(atcgOrder[j]+"")/2.0), floor(cury));
+            text(atcgOrder[j]+"", (dx/2.0)+curx+(textWidth(atcgOrder[j]+"")/2.0), cury);
           }
           curx+=dx;
           if (curx>startx+sideGraphWidth-11) {
@@ -2569,7 +2577,7 @@ void drawSideGraph() {
       }
       else{
         dx = 1.0*scaleFactor;
-        int bp_i = bpToIndex(refgen[i+1][rawcol]);
+        int bp_i = bpToIndex(refgen[i+1][rawcol-minoffset]);
         if(bp_i>-1){
           fill(actgcolor[bp_i]);
           rect(curx, floor(cury), dx, ceil(bh));
