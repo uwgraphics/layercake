@@ -468,7 +468,7 @@ void drawEven(boolean drawStripes) {
             int minoffset = minrt-minminrt;
             int maxoffset = maxmaxrt-maxrt;
             for (int k = 0;k<binBasePairs;k++) {
-              if ((j*binBasePairs + k + minoffset) < vraw[i].length - maxoffset && (getV(i, j*binBasePairs + k -minoffset)>=eweight)) {
+              if ((j*binBasePairs + k + minoffset) < vraw[i].length - maxoffset && (getV(i, j*binBasePairs + k +minoffset)>=eweight)) {
                 if (j!=zoomBin) {
                   fill(lerpColor(bottom,eventcolor, 1-(float)(getP(i,j*binBasePairs + k +minoffset))));
                   //fill(getColor(1.0, getP(i,j*binBasePairs + k +minoffset), 1.0));
