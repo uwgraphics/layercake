@@ -888,8 +888,8 @@ void drawTooltip() {
       label = "ref_nt: "+(col+minrt)+" cov: "+covdisp[row][col]+"  var:"+toPercentFloat(curvar)+"% p:"+pdisp[row][col] ;//+" actg_ct,n_ct,dip_ct: "+ldisp[row][col][0]+","+ldisp[row][col][1]+","+ldisp[row][col][2];
     }//end if
     else if (rawcol>=0 && rawcol<=(maxrt-minminrt)) {
-      curvar = getV(row, rawcol);
-      label = "ref_nt: "+(rawcol+minrt)+" cov: "+covraw[row][rawcol]+"  var:"+toPercentFloat(curvar)+"% p:"+getP(row, rawcol);//+" actg_ct,n_ct,dip_ct: "+lraw[row][rawcol][0]+","+lraw[row][rawcol][1]+","+lraw[row][rawcol][2];
+      curvar = getV(row, rawcol+ (minrt-minminrt));
+      label = "ref_nt: "+(rawcol+minrt)+" cov: "+covraw[row][rawcol]+"  var:"+toPercentFloat(curvar)+"% p:"+getP(row, rawcol+ (minrt-minminrt));//+" actg_ct,n_ct,dip_ct: "+lraw[row][rawcol][0]+","+lraw[row][rawcol][1]+","+lraw[row][rawcol][2];
     }
     else {
       curvar = vdisp[row][col];
