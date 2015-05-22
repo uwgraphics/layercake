@@ -6,7 +6,7 @@ This tool was created by the Visual Computing Lab at the University of Wisconsin
 http://graphics.cs.wisc.edu
 http://labs.pathology.wisc.edu/oconnor/
 
-For more information about the project, consult http://graphics.cs.wisc.edu/WP/layercake/
+For more information about the project, including how to add your own data, as well as approved file formats, consult http://graphics.cs.wisc.edu/WP/layercake/
 
 To build this project you will need Processing 2.0 or above, 
 https://www.processing.org/
