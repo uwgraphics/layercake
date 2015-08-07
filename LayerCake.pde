@@ -210,10 +210,10 @@ void setup() {
 
   //setup UI elements
 
-  synomCheck = new GCheckbox(this, 555 +slWidth, winHeight - 120, 170, 15, "Show Synon. Var.");
+  synomCheck = new GCheckbox(this, 555 +slWidth, winHeight - 120, 145, 15, "Show Synon. Var.");
   synomCheck.setSelected(true);
 
-  nonsynomCheck = new GCheckbox(this, 555 +slWidth, winHeight - 100, 170, 15, "Show Non-Synon. Var.");
+  nonsynomCheck = new GCheckbox(this, 555 +slWidth, winHeight - 100, 145, 15, "Show Non-Synon. Var.");
   nonsynomCheck.setSelected(true);
   stripeCheck = new GCheckbox(this, 400 +slWidth, winHeight - 120, 150, 15, "Event Striping");
   coverageCheck = new GCheckbox(this, 400 +slWidth, winHeight - 100, 150, 15, "Show Coverage");
@@ -1263,7 +1263,7 @@ void loadTest() {
 
   maxmaxrt++;
   cols = maxmaxrt - minminrt;
-  // System.err.println("max "+maxmaxrt+" min "+minminrt + " rows"+rows+" cols"+cols);   
+  //System.err.println("max "+maxmaxrt+" min "+minminrt + " rows "+rows+" cols"+cols);   
 
   vraw = new float[rows][cols][4]; // a_%,t_%,c_5,g_% 
   praw = new double[rows][cols][4]; // a_p, t_p, c_p, g_p
@@ -1450,7 +1450,7 @@ void checkRowsCSV(String filename) {
   String c_name;
   for (int i = 0;i<header.length;i++) {
     c_name = trim(header[i]);
-    if (c_name.equals("Sequence Name")) {
+    if (c_name.equals("Sequence Name") || c_name.equals("individual_id")) {
       name_col = i;
     }
   }
@@ -1539,7 +1539,7 @@ void checkMaxMinCSV(String filename) {
     for (int i = 0;i<header.length;i++) {
       c_name = trim(header[i]);
       //      if(c_name.equals("Nucleotide") || c_name.equals("Min (original sequence)") || c_name.equals("Minimum")){
-      if (c_name.equals("Minimum") || c_name.equals("Nucleotide")) {
+      if (c_name.equals("Minimum") || c_name.equals("Nucleotide") || c_name.equals("ref_nt")) {
         id_col = i;
       }
     }
@@ -1615,11 +1615,11 @@ boolean loadOneCSV(String filename) {
       varbp_col = i;
       //System.err.println("Found v_n col: "+i);
     }
-    else if (c_name.equals("Variant Frequency")) {
+    else if (c_name.equals("Variant Frequency") || c_name.equals("variant_percent")) {
       var_col = i;
       // System.err.println("Found v% col: "+i);
     }
-    else if (c_name.equals("Coverage")) {
+    else if (c_name.equals("Coverage") || c_name.equals("n_ct")) {
       ct_col = i;
       // System.err.println("Found c# col: "+i);
     }
@@ -1635,7 +1635,7 @@ boolean loadOneCSV(String filename) {
   if (id_col==-1) {
     for (int i = 0;i<header.length;i++) {
       c_name = trim(header[i]);
-      if (c_name.equals("Minimum") || c_name.equals("Nucleotide")) {
+      if (c_name.equals("Minimum") || c_name.equals("Nucleotide") || c_name.equals("ref_nf")) {
         id_col = i;
         // System.err.println("Found id col: "+i);
       }//end if
@@ -1811,7 +1811,7 @@ int isDataCSV(String filename){
   for (int i = 0;i<header.length;i++) {
     c_name = trim(header[i]);
     // if(c_name.equals("Nucleotide") || c_name.equals("Min (with gaps)") || c_name.equals("Minimum")){
-    if (c_name.equals("Sequence Name")) {
+    if (c_name.equals("Sequence Name") || c_name.equals("individual_id")) {
       name_col = i;
     }
     else if (c_name.equals("Min (with gaps)")) {
@@ -1832,11 +1832,11 @@ int isDataCSV(String filename){
       varbp_col = i;
       //System.err.println("Found v_n col: "+i);
     }
-    else if (c_name.equals("Variant Frequency")) {
+    else if (c_name.equals("Variant Frequency") || c_name.equals("variant_percent")) {
       var_col = i;
       // System.err.println("Found v% col: "+i);
     }
-    else if (c_name.equals("Coverage")) {
+    else if (c_name.equals("Coverage") || c_name.equals("atcg_ct")) {
       ct_col = i;
       // System.err.println("Found c# col: "+i);
     }
@@ -1852,7 +1852,7 @@ int isDataCSV(String filename){
   if (id_col==-1) {
     for (int i = 0;i<header.length;i++) {
       c_name = trim(header[i]);
-      if (c_name.equals("Minimum") || c_name.equals("Nucleotide")) {
+      if (c_name.equals("Minimum") || c_name.equals("Nucleotide") || c_name.equals("ref_nt")) {
         id_col = i;
         // System.err.println("Found id col: "+i);
       }//end if
@@ -1860,7 +1860,7 @@ int isDataCSV(String filename){
   }
   
   boolean isValid = false;
-  isValid = (p_col!=-1)&&(var_col!=-1)&&(id_col!=-1)&&(ct_col!=-1)&&(change_col!=-1 || varbp_col!=-1);
+  isValid = (var_col!=-1)&&(id_col!=-1)&&(ct_col!=-1)&&(change_col!=-1 || varbp_col!=-1);
   if(isValid){
     if(name_col!=-1)
       return 1;
@@ -2554,7 +2554,7 @@ void drawSideGraph() {
         scaleFactor = sideGraphWidth-11;
       }
 
-      if(covraw[i][rawcol]>0){
+      if(covraw[i][rawcol]>0 && rawcol-minoffset<maxrt){
         for (int j = 0;j<vraw[i][rawcol-minoffset].length;j++) {
           if (refgen[i+1][rawcol-minoffset]!=atcgOrder[j]) {
             dx = vraw[i][rawcol-minoffset][j]*scaleFactor;
@@ -2575,7 +2575,7 @@ void drawSideGraph() {
           }
         }
       }
-      else{
+      else if(rawcol-minoffset<maxrt){
         dx = 1.0*scaleFactor;
         int bp_i = bpToIndex(refgen[i+1][rawcol-minoffset]);
         if(bp_i>-1){
