@@ -2080,38 +2080,62 @@ void calcSynom(String filename) {
     }
   }
   else if (ext.equals("gbk")) {
+    
+    int fRegionStart = 0;
+    int fRegionEnd = lines.length;
     int numORFs = 0;
+    String[] tempSplit;
+    boolean inFeatureRegion = false;
     for (int i = 0;i<lines.length;i++) {
-      if (trim(lines[i]).length()>=3 && trim(lines[i]).substring(0, 3).equals("ORF")) {
+      tempSplit = trim(lines[i]).split("(     |\t) *");
+      
+      if(inFeatureRegion && tempSplit.length==2 && (tempSplit[0].equals("CDS") || tempSplit[0].equals("ORF"))){
         numORFs++;
-      }//end if
-      else {
       }
+      
+      
+      if(!inFeatureRegion && tempSplit.length>0 && tempSplit[0].equals("FEATURES")){
+        inFeatureRegion = true;
+        fRegionStart = i+1;
+      }
+            
+      if(inFeatureRegion && tempSplit.length>0 && tempSplit[0].equals("ORIGIN")){
+        inFeatureRegion = false;
+        fRegionEnd = i;
+      }
+      
     }//end for
     starts = new int[numORFs];
     ends = new int[numORFs];
     depths = new int[numORFs];
     orfNames = new String[numORFs];
+    String templabel;
     numORFs = 0;
+    boolean foundName = true;
     for (int i = 0;i<lines.length;i++) {
-      if (trim(lines[i]).length()>=3 && trim(lines[i]).substring(0, 3).equals("ORF")) {
-        pairs = ((trim(lines[i])).substring(3)).split("\\.\\.");
-        starts[numORFs] = int(trim(pairs[0]));
-        if (starts[numORFs]<minminrt) {
-          //  minminrt = starts[numORFs];
+      if(i>=fRegionStart && i<fRegionEnd){       
+        tempSplit = trim(lines[i]).split("(     |\t) *");
+        if(tempSplit.length==2 && (tempSplit[0].equals("CDS") || tempSplit[0].equals("ORF"))){
+           pairs = tempSplit[1].split("\\.\\.");
+           starts[numORFs] = int(trim(pairs[0]));
+           ends[numORFs] = int(trim(pairs[1]));
+           orfNames[numORFs] = tempSplit[0]+numORFs;
+           numORFs++; 
+           foundName = false;
         }
-        ends[numORFs] = int(trim(pairs[1]));
-        if (ends[numORFs]>maxmaxrt) {
-          //   maxmaxrt = ends[numORFs];
+        else if(!foundName){
+          if(tempSplit[0].length()>=6 && tempSplit[0].substring(0,6).equals("/label")){
+            orfNames[numORFs-1] = trim(lines[i]).split("=")[1];
+            foundName = true;
+          }
+          if((tempSplit[0].length()>=10 && tempSplit[0].substring(0,10).equals("/locus_tag"))){
+            System.err.println(tempSplit[0]);
+            orfNames[numORFs-1] = trim(lines[i]).split("=")[1];
+            foundName= true;
+          }
         }
-        numORFs++;
-      }//end if
-      else if (trim(lines[i]).length()>=6 && trim(lines[i]).substring(0, 6).equals("/label")) {
-        // System.err.println(lines[i]);
-        // System.err.println(trim(lines[i]).split("=")[1]);
-        orfNames[numORFs-1] = trim(lines[i]).split("=")[1];
       }
-      else if (i>1 && match(trim(lines[i]), "\\d+ [A-Z]+|[A-Z]+")!=null) {
+      else if (i>fRegionEnd && match(trim(lines[i]), "\\d+ [A-Z]+|[A-Z]+")!=null) {
         haveReference = true;
        // System.err.println(lines[i]);
         String[] temprefs = trim(lines[i]).split(" +");
@@ -2119,7 +2143,7 @@ void calcSynom(String filename) {
         for (int j=1;j<temprefs.length;j++) {
           for (int k=0;k<temprefs[j].length();k++) {
             if (startref+k>=minminrt && startref+k<maxmaxrt) {
-              refgen[0][startref+k -minminrt] = temprefs[j].charAt(k);
+              refgen[0][startref+k -minminrt] = Character.toUpperCase(temprefs[j].charAt(k));
             }
           }
           startref+=temprefs[j].length();
