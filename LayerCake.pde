@@ -335,7 +335,7 @@ void draw() {
 
   }
   
-  if (shouldRedraw) {
+  if (shouldRedraw || true) {
     if (mode==0) {
       drawEven(false);
     }//end if
@@ -2813,6 +2813,3 @@ double sum(double[] f) {
   }
   return suma;
 }
-
-
-
