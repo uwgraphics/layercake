@@ -443,7 +443,6 @@ void drawEven(boolean drawStripes) {
   float h = (bh/ratio);
   float curx = 0;
   float cury = 0;
-  int vmask = 0;
   //println(vdisp[0].length);
   // INCASE the reference changes
 
@@ -774,7 +773,6 @@ void calcConsensusGenome(){
   float c_ct = 0;//19
   float g_ct = 0;//20
   float t_ct = 0;//21
-  float gap_ct = 0;
   
   for (int c=0;c<vraw[0].length;c++)
   {
@@ -914,7 +912,6 @@ void drawORF() {
   if(orfNames!=null && orfNames.length>0){
   pushMatrix();
     translate(dataX, 25);
-    int[] curORF;
     float sx;
     float ex;
     int maxDepth = max(depths);
@@ -1655,7 +1652,6 @@ boolean loadOneCSV(String filename) {
 
   int c;
   int bp_i = -1;
-  String col_id;
   String[] change;
   String[] aline;
   String type;
@@ -1955,7 +1951,6 @@ boolean loadAllCSV(String filename) {
   int index = -1;
   int c;
   int bp_i = -1;
-  String col_id;
   String[] change;
   String[] aline;
   String type;
@@ -2109,7 +2104,6 @@ void calcSynom(String filename) {
     ends = new int[numORFs];
     depths = new int[numORFs];
     orfNames = new String[numORFs];
-    String templabel;
     numORFs = 0;
     boolean foundName = true;
     for (int i = 0;i<lines.length;i++) {
@@ -2230,7 +2224,6 @@ void setSynomRange() {
   int start;
   int end;
   int j;
-  boolean missing;
   String curCodon = "";
   int offset = 0;
   for (int i = 0;i<starts.length;i++) {
@@ -2477,22 +2470,16 @@ void drawBin() {
   float curx = zoomS;
   float cury = 0;
   float h = (bh/ratio);
-  float invn = 0;
-  float invdip = 0;
-  float amt = 0;
-  int done = 0;
 
   pushMatrix();
   translate(xtrans+dataX, ytrans);
   int i;
   int minoffset = minrt-minminrt;
   int maxoffset = maxmaxrt-maxrt;
-  int vmask = 0;
   float vVal;
   double cer;
   for (int l = 0;l<rows;l++) {
     i = reorder[l];
-    done++;
     curx = zoomS;
     for (int j = binID*binBasePairs + minoffset;j< (binID+1)*binBasePairs +minoffset && j<vraw[i].length-maxoffset;j++) {
    
@@ -2556,9 +2543,7 @@ void drawSideGraph() {
   float curx;
   float cury = dataY;
   float dx = 0;
-  int offset = 0;
   int minoffset = minminrt-minrt;
-  int maxoffset = maxmaxrt-maxrt;
   noStroke();
 
   if (rawcol>=0 && rawcol<vraw[0].length) {
